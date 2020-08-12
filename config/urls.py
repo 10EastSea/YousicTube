@@ -22,7 +22,7 @@ from musicboard import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('', views.index, name='index'),  # '/' 에 해당되는 path
+    path('', views.index, name='index'),  # '/' 에 해당되는 path
     path('musicboard/', include('musicboard.urls')),
     path('common/', include('common.urls')),
 ]

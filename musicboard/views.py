@@ -1,12 +1,24 @@
+import json
+from wsgiref.util import FileWrapper
+
 from django.shortcuts import render, get_object_or_404, redirect, resolve_url
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Count
+#-------------------------------------[악보저장 & 음악추천]--------------------------------------------#
+from .chord_classification_service import Chord_Classification_Service
+from django.http import HttpResponse, JsonResponse
+import os
+import urllib
+import mimetypes
+#-------------------------------------[악보저장 & 음악추천]--------------------------------------------#
 
 from .models import MusicPost, Comment
 from .forms import MusicForm, CommentForm
+
+JSON_PATH = 'data_big.json'
 
 # Create your views here.
 def index(request):
@@ -179,3 +191,180 @@ def vote_music(request, music_id):
     else:
         music.voter.add(request.user)
     return redirect('musicboard:detail', music_id=music.id)
+
+#-------------------------------------[악보저장 & 음악추천]--------------------------------------------#
+
+def music_download_sheet_quick(request, music_id): #
+    """
+    - vamp plugin을 통한 코드추출 및 악보저장
+    - quick이 붙은 이유는 tensorflow를 통한 악보저장보다 실행시간이 적기 때문 ( 약 15초 / 약 1분 )
+    """
+
+    music = get_object_or_404(MusicPost, pk=music_id)
+    ccs = Chord_Classification_Service()
+
+    music_sheet_path =''
+    music_sheet_name =''
+    if(not os.path.isfile('music_sheet_img/' + music.subject + "_quick.png")):
+        music_sheet_path = ccs.make_music_sheet(music.url, music.subject, isLSTM=False, audio_path='audio_file_download/make_sheet_quick')
+        music_sheet_name = music.subject + "_quick.png"
+    else:
+        music_sheet_path = 'music_sheet_img/' + music.subject + "_quick.png"
+        music_sheet_name = music.subject + "_quick.png"
+
+
+    if os.path.exists(music_sheet_path):
+        with open(music_sheet_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type=mimetypes.guess_type(music_sheet_path)[0])
+
+            # 인코딩 문제 해결
+            file_name = urllib.parse.quote(music_sheet_name.encode('utf-8'))
+            response['Content-Disposition'] = 'attachment;filename*=UTF-8\'\'%s' % file_name
+            return response
+
+def music_download_sheet_LSTM(request, music_id):
+    """
+    tensorflow(LSTM 인공지능 모델)를 통한 코드추출 및 악보저장
+    """
+
+    music = get_object_or_404(MusicPost, pk=music_id)
+    ccs = Chord_Classification_Service()
+
+    music_sheet_path =''
+    music_sheet_name =''
+    if(not os.path.isfile('music_sheet_img/' + music.subject + ".png")):
+        music_sheet_path = ccs.make_music_sheet(music.url, music.subject, isLSTM=True, audio_path='audio_file_download/make_sheet_LSTM')
+        music_sheet_name = music.subject + ".png"
+    else:
+        music_sheet_path = 'music_sheet_img/' + music.subject + ".png"
+        music_sheet_name = music.subject + ".png"
+
+
+    if os.path.exists(music_sheet_path):
+        with open(music_sheet_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type=mimetypes.guess_type(music_sheet_path)[0])
+
+            # 인코딩 문제 해결
+            file_name = urllib.parse.quote(music_sheet_name.encode('utf-8'))
+            response['Content-Disposition'] = 'attachment;filename*=UTF-8\'\'%s' % file_name
+            return response
+
+def music_recommend_music(request, music_id):
+    """
+    vamp plugin 통해 추출한 코드 데이터 기반 음악 추천
+    """
+
+    music = get_object_or_404(MusicPost, pk=music_id)
+    ccs = Chord_Classification_Service()
+
+    info_path = 'music_recommend_info/' + music.subject + "_recommend.json"
+    double_chord_recommend_dict = {}
+    single_chord_recommend_dict = {}
+    if (not os.path.isfile(info_path)):
+        double_chord_recommend_dict, single_chord_recommend_dict = ccs.get_top_three_similar_chord_music(music.url, music.subject, JSON_PATH,
+                                                                                                         audio_path='audio_file_download/recommend_music')
+
+    else:
+        with open(info_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            double_chord_recommend_dict = data['double_chord']
+            single_chord_recommend_dict = data['single_chord']
+
+    ranking_flag = 0
+    for idx, value in enumerate(double_chord_recommend_dict.values()):
+        value['iframe_url'] = value['url'].replace("watch?v=", "embed/")
+        if idx == 0:
+            value['ranking'] = '1st'
+        elif idx == 1:
+            value['ranking'] = '2nd'
+        else:
+            value['ranking'] = '3rd'
+
+    for idx, value in enumerate(single_chord_recommend_dict.values()):
+        value['iframe_url'] = value['url'].replace("watch?v=", "embed/")
+        if idx == 0:
+            value['ranking'] = '1st'
+        elif idx == 1:
+            value['ranking'] = '2nd'
+        else:
+            value['ranking'] = '3rd'
+
+
+    context = {'music' : music, 'double_chord_recommend_dict': double_chord_recommend_dict, 'single_chord_recommend_dict': single_chord_recommend_dict}
+    return render(request, 'musicboard/music_recommend.html', context)
+
+def music_update_recommend_music(request, music_id):
+    """
+    1. vamp plugin 통해 추출한 코드 데이터 기반 음악 추천
+    2. 추천리스트 갱신 및 추천 추천 기준 음악의 데이터를 추천음악 리스트 데이터에 추가
+    """
+    
+    music = get_object_or_404(MusicPost, pk=music_id)
+    ccs = Chord_Classification_Service()
+
+    double_chord_recommend_dict, single_chord_recommend_dict = ccs.get_top_three_similar_chord_music(music.url,
+                                                                                                         music.subject,
+                                                                                                         JSON_PATH,
+                                                                                                     audio_path='audio_file_download/update_recommend')
+    if(not music.isAdded):
+        ccs.add_recommend_database(music.url, JSON_PATH, audio_path='audio_file_download/update_recommend')
+        music.isAdded = True
+        music.save()
+
+    ranking_flag = 0
+    for idx, value in enumerate(double_chord_recommend_dict.values()):
+        value['iframe_url'] = value['url'].replace("watch?v=", "embed/")
+        if idx == 0:
+            value['ranking'] = '1st'
+        elif idx == 1:
+            value['ranking'] = '2nd'
+        else:
+            value['ranking'] = '3rd'
+
+    for idx, value in enumerate(single_chord_recommend_dict.values()):
+        value['iframe_url'] = value['url'].replace("watch?v=", "embed/")
+        if idx == 0:
+            value['ranking'] = '1st'
+        elif idx == 1:
+            value['ranking'] = '2nd'
+        else:
+            value['ranking'] = '3rd'
+
+    context = {'music': music, 'double_chord_recommend_dict': double_chord_recommend_dict,
+               'single_chord_recommend_dict': single_chord_recommend_dict}
+
+    return render(request, 'musicboard/music_recommend.html', context)
+
+def music_sheet_loading_quick(request, music_id):
+    """
+    vamp plugin을 통한 코드추출 및 악보저장 로딩시 musicboard 내용 출력
+    """
+
+    music = get_object_or_404(MusicPost, pk=music_id)
+
+    # iframe용 URL로 변경
+    realUrl = str(music.url)
+    iframeUrl = realUrl.replace("watch?v=", "embed/")
+    if realUrl == iframeUrl:
+        iframeUrl = realUrl.replace("youtu.be/", "www.youtube.com/embed/")
+
+    context = {'music': music, 'iframeUrl': iframeUrl}
+    return render(request, 'musicboard/music_sheet_loading_quick.html', context)
+
+def music_sheet_loading(request, music_id):
+    """
+    tensorflow를 통한 코드추출 및 악보저장 로딩시 musicboard 내용 출력
+    """
+
+    music = get_object_or_404(MusicPost, pk=music_id)
+
+    # iframe용 URL로 변경
+    realUrl = str(music.url)
+    iframeUrl = realUrl.replace("watch?v=", "embed/")
+    if realUrl == iframeUrl:
+        iframeUrl = realUrl.replace("youtu.be/", "www.youtube.com/embed/")
+
+    context = {'music': music, 'iframeUrl': iframeUrl}
+    return render(request, 'musicboard/music_sheet_loading.html', context)
+
+#-------------------------------------[악보저장 & 음악추천]--------------------------------------------#

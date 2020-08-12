@@ -1,0 +1,98 @@
+{
+    "double_chord": {
+        "Maroon 5  Girls Like You ft. Cardi B (Official Music Video)": {
+            "total_count": 108,
+            "chord_count": {
+                "C-Em": 2,
+                "Am7-F6": 11,
+                "F6-C": 26,
+                "C-G": 23,
+                "G-Am": 18,
+                "Am-F6": 15,
+                "C-G6": 3,
+                "G-Am7": 5,
+                "F-C": 3,
+                "Am-Dm": 1,
+                "Dm-C": 1
+            },
+            "url": "https://www.youtube.com/watch?v=aJOTlE1K90k"
+        },
+        "Major Lazer \u2013 Light it Up Remix (feat. Nyla & Fuse ODG) (Music Video) by Method Studios": {
+            "total_count": 24,
+            "chord_count": {
+                "G-C": 3,
+                "C-F": 3,
+                "Am7-G": 3,
+                "G6-F": 1,
+                "Am-Em": 6,
+                "Em-Am": 3,
+                "Em-Fmaj7": 1,
+                "G-F6": 1,
+                "Am7-F": 1,
+                "G-Am": 2
+            },
+            "url": "https://www.youtube.com/watch?v=r2LpOUwca94"
+        },
+        "Harry Styles  Watermelon Sugar (Official Video)": {
+            "total_count": 17,
+            "chord_count": {
+                "Am7-C": 4,
+                "C-G": 6,
+                "G-F6": 1,
+                "F6-C": 3,
+                "Am-F6": 1,
+                "Am7-F6": 1,
+                "Fmaj7-C": 1
+            },
+            "url": "https://www.youtube.com/watch?v=E07s5ZYygMg"
+        }
+    },
+    "single_chord": {
+        "Maroon 5  Girls Like You ft. Cardi B (Official Music Video)": {
+            "total_count": 122,
+            "chord_count": {
+                "C": 31,
+                "Em": 2,
+                "Am7": 11,
+                "F6": 26,
+                "G": 23,
+                "Am": 20,
+                "G6": 3,
+                "F": 3,
+                "G7": 2,
+                "Dm": 1
+            },
+            "url": "https://www.youtube.com/watch?v=aJOTlE1K90k"
+        },
+        "Camila Cabello  Shameless": {
+            "total_count": 65,
+            "chord_count": {
+                "Am": 9,
+                "C": 1,
+                "G": 7,
+                "Em": 22,
+                "C6": 3,
+                "G6": 9,
+                "Cmaj7": 12,
+                "Am7": 2
+            },
+            "url": "https://www.youtube.com/watch?v=Fp_P_e1cPOE"
+        },
+        "Post Malone  Circles": {
+            "total_count": 65,
+            "chord_count": {
+                "Em": 3,
+                "Fmaj7": 11,
+                "Cmaj7": 20,
+                "G": 3,
+                "G6": 5,
+                "F": 3,
+                "C6": 6,
+                "F6": 11,
+                "G/B": 2,
+                "Am": 1
+            },
+            "url": "https://www.youtube.com/watch?v=wXhTHyIgQ_U"
+        }
+    }
+}
