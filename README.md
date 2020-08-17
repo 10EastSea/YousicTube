@@ -63,5 +63,5 @@ $ python manage.py migrate --settings=config.settings.local
 
 ## 크레딧
 
-* 프로젝트 및 서버 개발자: [EastSea](https://github.com/10EastSea)
+* 웹 사이트 및 서버 개발자: [EastSea](https://github.com/10EastSea)
 * 악보 추출 및 음악 추천기능 개발자: [Jiker Bug](https://github.com/jikerbug)
