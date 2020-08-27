@@ -1,6 +1,6 @@
 # YousicTube
 
-[![button](https://img.shields.io/badge/link-YousicTube-brightgreen)](http://www.yousictube.ml/)
+[![button](https://img.shields.io/badge/link-YousicTube-brightgreen)](https://github.com/10EastSea/YousicTube)
 
 이 프로젝트 파일은 YousicTube 사이트의 실행파일입니다.
 
@@ -44,8 +44,6 @@ $ pip install tensorflow-cpu
 > 2. pip install vamp를 한 후에 반드시 [vamp 플러그인 홈페이지](https://code.soundsoftware.ac.uk/projects/vamp-plugin-pack)에서 Chordino and NNLS chroma 플러그인, beatRoot 플러그인을 설치해주어야 함
 
 ## 사용법
-
-이 프로젝트는 실제 웹 애플리케이션의 프로젝트이므로 [공식적인 웹 페이지](http://www.yousictube.ml/)가 존재합니다. (URL: [http://www.yousictube.ml/](http://www.yousictube.ml/))
 
 다음 프로젝트를 실행하기 위해선 로컬 서버에서 운영하는 방법이 존재합니다.
 로컬 서버에서 이 프로젝트를 운영하는 방법은 프로젝트 최상위 폴더내에 존재하는 manage.py를 실행함으로써 운영할 수 있습니다. 다음의 명령어를 입력하면 로컬서버에서 실행할 수 있습니다.
